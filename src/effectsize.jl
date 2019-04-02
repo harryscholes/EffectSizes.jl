@@ -1,10 +1,20 @@
 """
-    AbstractEffectSize <: AbstractFloat
+    AbstractEffectSize
 
 An abstract type to represent an effect size.
 
-Subtypes must implement:
-    - `effectsize` to return the effect size index
+Effect | Effect size
+---|---
+Small | 0.2
+---|---
+Medium | 0.5
+---|---
+Large | 0.8
+
+Subtypes implement:
+    - `effectsize`, returns the effect size index
+    - `confint`, returns the confidence interval
+    - `quantile`, returns the confidence interval quantile
 """
 abstract type AbstractEffectSize end
 
