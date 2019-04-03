@@ -10,7 +10,7 @@ end
     ConfidenceInterval(lower, upper, quantile)
 
 A type representing the `lower` lower and `upper` upper bounds of an effect size confidence
-interval at the `qualtile` quantile.
+interval at the `quantile` quantile.
 
     ConfidenceInterval(xs, ys, d; quantile)
     ConfidenceInterval(xs, ys; quantile, bootstrap)

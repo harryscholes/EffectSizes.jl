@@ -4,7 +4,7 @@
 An abstract type to represent an effect size.
 
 Effect | Effect size
----|---
+:---|---:
 Small | 0.2
 Medium | 0.5
 Large | 0.8
@@ -12,7 +12,7 @@ Large | 0.8
 Subtypes implement:
 
 Method | Description
---- | ---
+:--- | :---
 `effectsize` | returns the effect size index
 `confint` | returns the confidence interval
 `quantile` | returns the confidence interval quantile
@@ -66,8 +66,8 @@ If ``m_A`` > ``m_B``, ``d`` will be positive and if ``m_A`` < ``m_B``, ``d`` wil
 # Examples
 
 ```julia
-xs = rand(100000)
-ys = rand(100000) *.99
+xs = randn(100000)
+ys = randn(100000) .+ 0.01
 
 using EffectSizes
 CohenD(xs, ys)

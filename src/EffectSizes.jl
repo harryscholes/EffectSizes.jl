@@ -1,3 +1,8 @@
+"""
+    EffectSizes
+
+A Julia package for effect size measures.
+"""
 module EffectSizes
 
 export
@@ -18,6 +23,11 @@ import Base.Grisu: PRECISION
 include("confint.jl")
 include("effectsize.jl")
 
+"""
+    const EffectSize = CohenD
+
+See [`CohenD`](@ref).
+"""
 const EffectSize = CohenD
 
 end # module
