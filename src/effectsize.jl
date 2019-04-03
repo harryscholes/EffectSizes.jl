@@ -75,15 +75,15 @@ struct CohenD{T<:Real} <: AbstractEffectSize
     ci::ConfidenceInterval{T}
 end
 
-function CohenD(xs::AbstractVector{<:Real}, ys::AbstractVector{<:Real};
-                quantile::Float64=0.95)
+function CohenD(xs::AbstractVector{T}, ys::AbstractVector{T};
+                quantile::Float64=0.95) where T<:Real
     d = cohend(xs, ys)
     ci = ConfidenceInterval(xs, ys, d; quantile=quantile)
     CohenD(d, ci)
 end
 
-function CohenD(xs::AbstractVector{<:Real}, ys::AbstractVector{<:Real},
-                bootstrap::Integer; quantile::Float64=0.95)
+function CohenD(xs::AbstractVector{T}, ys::AbstractVector{T},
+                bootstrap::Integer; quantile::Float64=0.95) where T<:Real
     d = cohend(xs, ys)
     ci = ConfidenceInterval(xs, ys, cohend, bootstrap; quantile=quantile)
     CohenD(d, ci)
@@ -121,15 +121,15 @@ struct HedgeG{T<:Real} <: AbstractEffectSize
     ci::ConfidenceInterval{T}
 end
 
-function HedgeG(xs::AbstractVector{<:Real}, ys::AbstractVector{<:Real};
-                quantile::Float64=0.95)
+function HedgeG(xs::AbstractVector{T}, ys::AbstractVector{T};
+                quantile::Float64=0.95) where T<:Real
     g = hedgeg(xs, ys)
     ci = ConfidenceInterval(xs, ys, g; quantile=quantile)
     HedgeG(g, ci)
 end
 
-function HedgeG(xs::AbstractVector{<:Real}, ys::AbstractVector{<:Real},
-                bootstrap::Integer; quantile::Float64=0.95)
+function HedgeG(xs::AbstractVector{T}, ys::AbstractVector{T},
+                bootstrap::Integer; quantile::Float64=0.95) where T<:Real
     g = hedgeg(xs, ys)
     ci = ConfidenceInterval(xs, ys, hedgeg, bootstrap; quantile=quantile)
     HedgeG(g, ci)
