@@ -8,8 +8,19 @@ end
 
 """
     ConfidenceInterval(lower, upper, quantile)
+
+A type representing the `lower` lower and `upper` upper bounds of an effect size confidence
+interval at the `qualtile` quantile.
+
     ConfidenceInterval(xs, ys, d; quantile)
     ConfidenceInterval(xs, ys; quantile, bootstrap)
+
+Calculates the effect size confidence interval between two vectors `xs` and `ys` at the
+`quantile` quantile.
+
+If `d` is provided, the confidence interval is calculated using the standard normal
+distribution. If `bootstrap` is provided, the confidence interval is calculated by
+resampling from `xs` and `ys` `bootstrap` times.
 """
 struct ConfidenceInterval{T<:Real}
     lower::T

@@ -6,15 +6,16 @@ An abstract type to represent an effect size.
 Effect | Effect size
 ---|---
 Small | 0.2
----|---
 Medium | 0.5
----|---
 Large | 0.8
 
 Subtypes implement:
-    - `effectsize`, returns the effect size index
-    - `confint`, returns the confidence interval
-    - `quantile`, returns the confidence interval quantile
+
+Method | Description
+--- | ---
+`effectsize` | returns the effect size index
+`confint` | returns the confidence interval
+`quantile` | returns the confidence interval quantile
 """
 abstract type AbstractEffectSize end
 
@@ -45,6 +46,10 @@ correction(n::Integer) = ((n-3)/(n-2.25)) * √((n-2)/n)
     CohenD(xs, ys[, bootstrap]; [quantile=0.95])
 
 Calculate Cohen's ``d`` effect size index between two vectors `xs` and `ys`.
+
+A confidence interval for the effect size is calculated at the `quantile` quantile. If
+`bootstrap` is provided, the confidence interval is calculated by resampling from `xs`
+and `ys` `bootstrap` times.
 
 ```math
     d = \\frac{m_A - m_B}{s}
@@ -104,6 +109,10 @@ effectsize(es::CohenD) = es.d
     HedgeG(xs, ys[, bootstrap]; [quantile=0.95])
 
 Calculate Hedge's ``g`` effect size index between two vectors `xs` and `ys`.
+
+A confidence interval for the effect size is calculated at the `quantile` quantile. If
+`bootstrap` is provided, the confidence interval is calculated by resampling from `xs`
+and `ys` `bootstrap` times.
 
 ```math
     g = \\frac{m_A - m_B}{s}
