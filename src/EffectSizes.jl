@@ -15,7 +15,7 @@ export
 
 import Statistics: mean, std
 import Distributions
-import Distributions: quantile
+import Distributions: quantile, Normal
 import HypothesisTests
 import HypothesisTests: confint
 import Base.Grisu: PRECISION
