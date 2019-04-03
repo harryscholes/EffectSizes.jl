@@ -9,9 +9,8 @@ matrix:
   fast_finish: true
 notifications:
   email: false
-codecov: true
-# after_success:
-#   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+after_success:
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
 jobs:
   include:
     - stage: Documentation
