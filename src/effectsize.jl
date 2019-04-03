@@ -64,10 +64,11 @@ If ``m_A`` > ``m_B``, ``d`` will be positive and if ``m_A`` < ``m_B``, ``d`` wil
 xs = rand(100000)
 ys = rand(100000) *.99
 
-EffectSize(xs, ys)
+using EffectSizes
+CohenD(xs, ys)
 
 using HypothesisTests
-pvalue(EqualVarianceTTest(xs, ys))
+EqualVarianceTTest(xs, ys)
 ```
 """
 struct CohenD{T<:Real} <: AbstractEffectSize
