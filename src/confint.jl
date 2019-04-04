@@ -44,13 +44,41 @@ function ConfidenceInterval(xs::AbstractVector{T}, ys::AbstractVector{T}, f::Fun
                             bootstrap::Integer=1000; quantile::AbstractFloat) where T<:Real
     0. ≤ quantile ≤ 1. || throw(DomainError(quantile))
     bootstrap > 1 || throw(DomainError(bootstrap))
-    es = map(_->f(bootstrapsample(xs), bootstrapsample(ys)), 1:bootstrap)
+    # es = map(_->f(bootstrapsample(xs), bootstrapsample(ys)), 1:bootstrap)
+    es = @distributed vcat for _ = 1:bootstrap
+        f(bootstrapsample(xs), bootstrapsample(ys))
+    end
     lq, uq = twotailedquantile(quantile)
     ConfidenceInterval(Distributions.quantile(es, lq), Distributions.quantile(es, uq),
                        quantile)
 end
 
-HypothesisTests.confint(ci::ConfidenceInterval) = ci.lower, ci.upper
+"""
+    lower(ci)
+
+Returns the lower bound of a confidence interval.
+"""
+lower(ci::ConfidenceInterval) = ci.lower
+
+"""
+    upper(ci)
+
+Returns the upper bound of a confidence interval.
+"""
+upper(ci::ConfidenceInterval) = ci.upper
+
+"""
+    confint(ci)
+
+Returns the lower and upper bounds of a confidence interval.
+"""
+HypothesisTests.confint(ci::ConfidenceInterval) = lower(ci), upper(ci)
+
+"""
+    quantile(ci)
+
+Returns the quantile of a confidence interval.
+"""
 Distributions.quantile(ci::ConfidenceInterval) = ci.quantile
 
 function Base.show(io::IO, ci::ConfidenceInterval)

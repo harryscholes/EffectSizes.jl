@@ -11,8 +11,12 @@ export
     HedgeG,
     effectsize,
     confint,
+    ConfidenceInterval,
+    lower,
+    upper,
     quantile
 
+using Distributed
 import Statistics: mean, std
 import Distributions
 import Distributions: quantile, Normal
