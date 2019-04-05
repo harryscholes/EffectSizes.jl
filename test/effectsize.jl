@@ -29,6 +29,8 @@ using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2
         @test typeof(effectsize(es)) == eltype(xs)
         @test es == T(xs, ys)
 
+        @test effectsize(T(xs, xs)) == 0
+
         es2 = T(xs, ys, quantile=0.8)
         @test lower(confint(es2)) > lower(confint(es))
         @test upper(confint(es2)) < upper(confint(es))
@@ -44,6 +46,8 @@ using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2
         @test quantile(es4) == 0.1
         @test lower(confint(es3)) < lower(confint(es4))
         @test upper(confint(es3)) > upper(confint(es4))
+
+        @test effectsize(T(xs, xs, 100)) == 0
     end
 end
 
