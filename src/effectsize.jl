@@ -20,7 +20,7 @@ Method | Description
 abstract type AbstractEffectSize end
 
 HypothesisTests.confint(es::AbstractEffectSize) = es.ci
-Distributions.quantile(es::AbstractEffectSize) = confint(es).quantile
+Distributions.quantile(es::AbstractEffectSize) = quantile(confint(es))
 
 function Base.show(io::IO, es::AbstractEffectSize)
     print(io, round(effectsize(es), digits=PRECISION), ", ", confint(es))
@@ -40,7 +40,10 @@ function pooledstd2(xs::AbstractVector{T}, ys::AbstractVector{T}) where T<:Real
     √(((nx-1)*std(xs)^2 + (ny-1)*std(ys)^2)/(nx+ny))
 end
 
-correction(n::Integer) = ((n-3)/(n-2.25)) * √((n-2)/n)
+function correction(n::Integer)
+    n > 1 || throw(DomainError(n))
+    ((n-3)/(n-2.25)) * √((n-2)/n)
+end
 
 effectsize(mx::T, my::T, s::T) where T<:Real = ((mx-my) / s)
 effectsize(mx::T, my::T, s::T, n::Integer) where T<:Real = ((mx-my) / s) * correction(n)

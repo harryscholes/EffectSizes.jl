@@ -9,6 +9,7 @@ export
     EffectSize,
     CohenD,
     HedgeG,
+    GlassΔ,
     effectsize,
     confint,
     ConfidenceInterval,
