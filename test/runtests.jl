@@ -2,5 +2,6 @@ using EffectSizes
 using Test
 
 @testset "EffectSizes.jl" begin
-    # Write your own tests here.
+    include("confint.jl")
+    include("effectsize.jl")
 end

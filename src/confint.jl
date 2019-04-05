@@ -1,6 +1,7 @@
 bootstrapsample(xs::AbstractVector) = xs[rand(1:length(xs), length(xs))]
 
 function twotailedquantile(quantile::AbstractFloat)
+    0. ≤ quantile ≤ 1. || throw(DomainError(quantile))
     lq = (1-quantile)/2
     uq = quantile+lq
     lq, uq
@@ -26,6 +27,10 @@ struct ConfidenceInterval{T<:Real}
     lower::T
     upper::T
     quantile::Float64
+    
+    function ConfidenceInterval(l::T,u::T,q::Float64) where T<:Real
+        l ≤ u ? new{T}(l,u,q) : throw(DomainError((l,u), "l > u"))
+    end
 end
 
 function ConfidenceInterval(xs::AbstractVector{T}, ys::AbstractVector{T}, es::T;
