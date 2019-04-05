@@ -27,7 +27,7 @@ struct ConfidenceInterval{T<:Real}
     lower::T
     upper::T
     quantile::Float64
-    
+
     function ConfidenceInterval(l::T,u::T,q::Float64) where T<:Real
         l ≤ u ? new{T}(l,u,q) : throw(DomainError((l,u), "l > u"))
     end
@@ -49,14 +49,16 @@ function ConfidenceInterval(xs::AbstractVector{T}, ys::AbstractVector{T}, f::Fun
                             bootstrap::Integer=1000; quantile::AbstractFloat) where T<:Real
     0. ≤ quantile ≤ 1. || throw(DomainError(quantile))
     bootstrap > 1 || throw(DomainError(bootstrap))
-    # es = map(_->f(bootstrapsample(xs), bootstrapsample(ys)), 1:bootstrap)
-    es = @distributed vcat for _ = 1:bootstrap
-        f(bootstrapsample(xs), bootstrapsample(ys))
-    end
+    es = map(_->f(bootstrapsample(xs), bootstrapsample(ys)), 1:bootstrap)
+    # es = @distributed vcat for _ = 1:bootstrap
+    #     f(bootstrapsample(xs), bootstrapsample(ys))
+    # end
     lq, uq = twotailedquantile(quantile)
     ConfidenceInterval(Distributions.quantile(es, lq), Distributions.quantile(es, uq),
                        quantile)
 end
+
+
 
 """
     lower(ci)
