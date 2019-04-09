@@ -91,20 +91,6 @@ struct CohenD{T<:Real} <: AbstractEffectSize
     ci::ConfidenceInterval{T}
 end
 
-function CohenD(xs::AbstractVector{T}, ys::AbstractVector{T};
-                quantile::Float64=0.95) where T<:Real
-    d = cohend(xs, ys)
-    ci = ConfidenceInterval(xs, ys, d; quantile=quantile)
-    CohenD(d, ci)
-end
-
-function CohenD(xs::AbstractVector{T}, ys::AbstractVector{T},
-                bootstrap::Integer; quantile::Float64=0.95) where T<:Real
-    d = cohend(xs, ys)
-    ci = ConfidenceInterval(xs, ys, cohend, bootstrap; quantile=quantile)
-    CohenD(d, ci)
-end
-
 cohend(xs, ys) = effectsize(mean(xs), mean(ys), pooledstd1(xs, ys), length(xs)+length(ys))
 
 effectsize(es::CohenD) = es.d
@@ -140,20 +126,6 @@ struct HedgeG{T<:Real} <: AbstractEffectSize
     ci::ConfidenceInterval{T}
 end
 
-function HedgeG(xs::AbstractVector{T}, ys::AbstractVector{T};
-                quantile::Float64=0.95) where T<:Real
-    g = hedgeg(xs, ys)
-    ci = ConfidenceInterval(xs, ys, g; quantile=quantile)
-    HedgeG(g, ci)
-end
-
-function HedgeG(xs::AbstractVector{T}, ys::AbstractVector{T},
-                bootstrap::Integer; quantile::Float64=0.95) where T<:Real
-    g = hedgeg(xs, ys)
-    ci = ConfidenceInterval(xs, ys, hedgeg, bootstrap; quantile=quantile)
-    HedgeG(g, ci)
-end
-
 hedgeg(xs, ys) = effectsize(mean(xs), mean(ys), pooledstd2(xs, ys), length(xs)+length(ys))
 
 effectsize(es::HedgeG) = es.g
@@ -186,20 +158,28 @@ struct GlassΔ{T<:Real} <: AbstractEffectSize
     ci::ConfidenceInterval{T}
 end
 
-function GlassΔ(xs::AbstractVector{T}, ys::AbstractVector{T};
-                quantile::Float64=0.95) where T<:Real
-    Δ = glassΔ(xs, ys)
-    ci = ConfidenceInterval(xs, ys, Δ; quantile=quantile)
-    GlassΔ(Δ, ci)
-end
-
-function GlassΔ(xs::AbstractVector{T}, ys::AbstractVector{T},
-                bootstrap::Integer; quantile::Float64=0.95) where T<:Real
-    Δ = glassΔ(xs, ys)
-    ci = ConfidenceInterval(xs, ys, glassΔ, bootstrap; quantile=quantile)
-    GlassΔ(Δ, ci)
-end
-
 glassΔ(xs, ys) = effectsize(mean(xs), mean(ys), std(ys))
 
 effectsize(es::GlassΔ) = es.Δ
+
+# constructors
+
+for (T, f) = [(:CohenD, cohend), (:GlassΔ, glassΔ), (:HedgeG, hedgeg)]
+    @eval begin
+        # Normal CI
+        function $T(xs::AbstractVector{T}, ys::AbstractVector{T};
+                    quantile::Float64=0.95) where T<:Real
+            es = $f(xs, ys)
+            ci = ConfidenceInterval(xs, ys, es; quantile=quantile)
+            $T(es, ci)
+        end
+
+        # Bootstrap CI
+        function $T(xs::AbstractVector{T}, ys::AbstractVector{T}, bootstrap::Integer;
+                    quantile::Float64=0.95) where T<:Real
+            es = $f(xs, ys)
+            ci = ConfidenceInterval(xs, ys, $f, bootstrap; quantile=quantile)
+            $T(es, ci)
+        end
+    end
+end
