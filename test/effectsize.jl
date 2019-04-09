@@ -22,6 +22,9 @@ using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2
     xs = randn(90)
     ys = randn(110)
 
+    @test effectsize(T(xs .+ 1, xs)) > 0
+    @test effectsize(T(xs, xs .+ 1)) < 0
+
     @testset "constructors" begin
         # Normal
         es = T(xs, ys)
