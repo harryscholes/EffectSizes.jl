@@ -58,34 +58,22 @@ function ConfidenceInterval(xs::AbstractVector{T}, ys::AbstractVector{T}, f::Fun
                        quantile)
 end
 
-
-
 """
-    lower(ci)
+    lower(ci::ConfidenceInterval)
 
 Returns the lower bound of a confidence interval.
 """
 lower(ci::ConfidenceInterval) = ci.lower
 
 """
-    upper(ci)
+    upper(ci::ConfidenceInterval)
 
 Returns the upper bound of a confidence interval.
 """
 upper(ci::ConfidenceInterval) = ci.upper
 
-"""
-    confint(ci)
-
-Returns the lower and upper bounds of a confidence interval.
-"""
 HypothesisTests.confint(ci::ConfidenceInterval) = lower(ci), upper(ci)
 
-"""
-    quantile(ci)
-
-Returns the quantile of a confidence interval.
-"""
 Distributions.quantile(ci::ConfidenceInterval) = ci.quantile
 
 function Base.show(io::IO, ci::ConfidenceInterval)
