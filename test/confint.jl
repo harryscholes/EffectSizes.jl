@@ -1,6 +1,7 @@
 using EffectSizes
 using Test
-using EffectSizes: bootstrapsample, twotailedquantile
+using EffectSizes: bootstrapsample, twotailedquantile, AbstractConfidenceInterval,
+    ConfidenceInterval, BootstrapConfidenceInterval
 
 @testset "ConfidenceInterval" begin
     l = .1
@@ -38,11 +39,11 @@ using EffectSizes: bootstrapsample, twotailedquantile
         ys = randn(110)
         q = 0.8
         f(xs, ys) = sum([sum(xs), sum(ys)] ./ 1000)
-        ci = ConfidenceInterval(xs, ys, f, 100, quantile=q)
+        ci = BootstrapConfidenceInterval(xs, ys, f, 100, quantile=q)
         @test quantile(ci) == q
         @test lower(ci) < upper(ci)
-        @test_throws DomainError ConfidenceInterval(xs, ys, f, 100, quantile=1.1)
-        @test_throws DomainError ConfidenceInterval(xs, ys, f, -1, quantile=q)
+        @test_throws DomainError BootstrapConfidenceInterval(xs, ys, f, 100, quantile=1.1)
+        @test_throws DomainError BootstrapConfidenceInterval(xs, ys, f, -1, quantile=q)
     end
 end
 

@@ -12,7 +12,6 @@ export
     GlassΔ,
     effectsize,
     confint,
-    ConfidenceInterval,
     lower,
     upper,
     quantile
