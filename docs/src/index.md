@@ -69,7 +69,8 @@ CohenD
 EffectSize
 HedgeG
 GlassΔ
-ConfidenceInterval
+EffectSizes.ConfidenceInterval
+EffectSizes.BootstrapConfidenceInterval
 effectsize
 confint
 lower

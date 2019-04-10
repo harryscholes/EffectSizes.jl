@@ -64,7 +64,9 @@ struct ConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
     quantile::Float64
 
     function ConfidenceInterval(l::T,u::T,q::Float64) where T<:Real
-        l ≤ u ? new{T}(l,u,q) : throw(DomainError((l,u), "l > u"))
+        l ≤ u || throw(DomainError((l,u), "l > u"))
+        0. ≤ q ≤ 1. || throw(DomainError(q))
+        new{T}(l,u,q)
     end
 end
 
@@ -95,10 +97,13 @@ struct BootstrapConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
     lower::T
     upper::T
     quantile::Float64
-    n::Int64
+    bootstrap::Int64
 
-    function BootstrapConfidenceInterval(l::T,u::T,q::Float64,n::Int64) where T<:Real
-        l ≤ u ? new{T}(l,u,q,n) : throw(DomainError((l,u), "l > u"))
+    function BootstrapConfidenceInterval(l::T,u::T,q::Float64,b::Int64) where T<:Real
+        l ≤ u || throw(DomainError((l,u), "l > u"))
+        0. ≤ q ≤ 1. || throw(DomainError(q))
+        b > 1 || throw(DomainError(b))
+        new{T}(l,u,q,b)
     end
 end
 
