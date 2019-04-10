@@ -19,6 +19,32 @@ Method | Description
 """
 abstract type AbstractEffectSize end
 
+"""
+    effectsize(es::AbstractEffectSize)
+
+Returns the effect size index.
+"""
+effectsize
+
+"""
+    confint(es::AbstractEffectSize)
+
+Returns the confidence interval of an effect size as a `ConfidenceInterval` object.
+
+    confint(ci::ConfidenceInterval)
+
+Returns the lower and upper bounds of a confidence interval.
+"""
+confint
+
+"""
+    quantile(es::AbstractEffectSize)
+    quantile(ci::ConfidenceInterval)
+
+Returns the quantile of a confidence interval.
+"""
+quantile
+
 HypothesisTests.confint(es::AbstractEffectSize) = es.ci
 Distributions.quantile(es::AbstractEffectSize) = quantile(confint(es))
 
