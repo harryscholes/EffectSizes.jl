@@ -86,9 +86,9 @@ using HypothesisTests
 EqualVarianceTTest(xs, ys)
 ```
 """
-struct CohenD{T<:Real} <: AbstractEffectSize
+struct CohenD{T<:Real,CI<:AbstractConfidenceInterval{T}} <: AbstractEffectSize
     d::T
-    ci::ConfidenceInterval{T}
+    ci::CI
 end
 
 cohend(xs, ys) = effectsize(mean(xs), mean(ys), pooledstd1(xs, ys), length(xs)+length(ys))
@@ -121,9 +121,9 @@ negative.
 
     `HedgeG` outperforms `CohenD` when sample sizes are < 20.
 """
-struct HedgeG{T<:Real} <: AbstractEffectSize
+struct HedgeG{T<:Real,CI<:AbstractConfidenceInterval{T}} <: AbstractEffectSize
     g::T
-    ci::ConfidenceInterval{T}
+    ci::CI
 end
 
 hedgeg(xs, ys) = effectsize(mean(xs), mean(ys), pooledstd2(xs, ys), length(xs)+length(ys))
@@ -153,9 +153,9 @@ If ``m_T`` > ``m_C``, ``Δ`` will be positive and if ``m_T`` < ``m_C``, ``Δ`` w
     `GlassΔ` should be used when the standard deviations between the two groups are very
     different.
 """
-struct GlassΔ{T<:Real} <: AbstractEffectSize
+struct GlassΔ{T<:Real,CI<:AbstractConfidenceInterval{T}} <: AbstractEffectSize
     Δ::T
-    ci::ConfidenceInterval{T}
+    ci::CI
 end
 
 glassΔ(xs, ys) = effectsize(mean(xs), mean(ys), std(ys))
@@ -178,7 +178,7 @@ for (T, f) = [(:CohenD, cohend), (:GlassΔ, glassΔ), (:HedgeG, hedgeg)]
         function $T(xs::AbstractVector{T}, ys::AbstractVector{T}, bootstrap::Integer;
                     quantile::Float64=0.95) where T<:Real
             es = $f(xs, ys)
-            ci = ConfidenceInterval(xs, ys, $f, bootstrap; quantile=quantile)
+            ci = BootstrapConfidenceInterval(xs, ys, $f, bootstrap; quantile=quantile)
             $T(es, ci)
         end
     end
