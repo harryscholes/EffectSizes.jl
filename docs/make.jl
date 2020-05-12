@@ -1,14 +1,14 @@
-using Documenter, EffectSizes
+using Documenter
+using EffectSizes
 
 makedocs(;
     modules=[EffectSizes],
-    format=Documenter.HTML(assets=String[]),
+    format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
     ],
     repo="https://github.com/harryscholes/EffectSizes.jl/blob/{commit}{path}#L{line}",
     sitename="EffectSizes.jl",
-    authors="harryscholes",
 )
 
 deploydocs(;
