@@ -23,10 +23,10 @@ export
 
 using Statistics
 using Distributions
-using HypothesisTests
+using StatsBase
 
 import Distributions: quantile
-import HypothesisTests: confint
+import StatsBase: confint
 
 include("confidence_interval.jl")
 include("effect_size.jl")
