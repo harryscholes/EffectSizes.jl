@@ -1,97 +1,114 @@
-bootstrapsample(xs::AbstractVector) = xs[rand(1:length(xs), length(xs))]
+bootstrapsample(xs::AbstractVector) = @views xs[rand(1:length(xs), length(xs))]
 
 function twotailedquantile(quantile::AbstractFloat)
     0. ≤ quantile ≤ 1. || throw(DomainError(quantile))
-    lq = (1-quantile)/2
-    uq = quantile+lq
-    lq, uq
+    lq = (1 - quantile) / 2
+    uq = quantile + lq
+    return lq, uq
 end
 
 """
     AbstractConfidenceInterval{T<:Real}
 
 A type representing a confidence interval.
+
+Subtypes implement:
+
+Method | Description
+:--- | :---
+`lower` | returns the lower bound
+`upper` | returns the upper bound
+`quantile` | returns the quantile
 """
 abstract type AbstractConfidenceInterval{T<:Real} end
 
 """
-    lower(ci::AbstractConfidenceInterval)
+    lower(ci::AbstractConfidenceInterval{T}) -> T
 
-Returns the lower bound of a confidence interval.
+Return the lower bound of a confidence interval.
 """
-lower(ci::AbstractConfidenceInterval) = ci.lower
-
-"""
-    upper(ci::AbstractConfidenceInterval)
-
-Returns the upper bound of a confidence interval.
-"""
-upper(ci::AbstractConfidenceInterval) = ci.upper
+lower
 
 """
-    confint(ci::AbstractConfidenceInterval)
+    upper(ci::AbstractConfidenceInterval{T}) -> T
 
-Returns the lower and upper bounds of a confidence interval.
+Return the upper bound of a confidence interval.
 """
-HypothesisTests.confint(ci::AbstractConfidenceInterval) = lower(ci), upper(ci)
+upper
 
 """
-    quantile(ci::AbstractConfidenceInterval)
+    quantile(ci::AbstractConfidenceInterval) -> Float64
 
 Returns the quantile of a confidence interval.
 """
-Distributions.quantile(ci::AbstractConfidenceInterval) = ci.quantile
+quantile
 
-function Base.show(io::IO, ci::AbstractConfidenceInterval)
-    print(io, quantile(ci), "CI (", round(lower(ci), digits=PRECISION), ", ",
-          round(upper(ci), digits=PRECISION), ")")
-end
+"""
+    confint(ci::AbstractConfidenceInterval{T}) -> Tuple{T,T}
+
+Return the lower and upper bounds of a confidence interval.
+"""
+confint(ci::AbstractConfidenceInterval) = (lower(ci), upper(ci))
 
 """
     ConfidenceInterval(lower, upper, quantile)
 
-A type representing the `lower` lower and `upper` upper bounds of an effect size confidence
-interval at the `quantile` quantile.
+A type representing the `lower` and `upper` bounds of an effect size confidence
+interval at a specified `quantile`.
 
     ConfidenceInterval(xs, ys, es; quantile)
 
-Calculates a confidence interval for the effect size `es` between two vectors `xs` and `ys`
-at the `quantile` quantile.
+Calculate a confidence interval for the effect size `es` between two vectors `xs` and `ys`
+at a specified `quantile`.
 """
 struct ConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
     lower::T
     upper::T
     quantile::Float64
 
-    function ConfidenceInterval(l::T,u::T,q::Float64) where T<:Real
-        l ≤ u || throw(DomainError((l,u), "l > u"))
+    function ConfidenceInterval(l::T, u::T, q::Float64) where T<:Real
+        l ≤ u || throw(ArgumentError("l > u"))
         0. ≤ q ≤ 1. || throw(DomainError(q))
-        new{T}(l,u,q)
+        new{T}(l, u, q)
     end
 end
 
-function ConfidenceInterval(xs::AbstractVector{T}, ys::AbstractVector{T}, es::T;
-                            quantile::AbstractFloat) where T<:Real
+function ConfidenceInterval(
+    xs::AbstractVector{T},
+    ys::AbstractVector{T},
+    es::T;
+    quantile::AbstractFloat,
+) where T<:Real
+
     0. ≤ quantile ≤ 1. || throw(DomainError(quantile))
     nx = length(xs)
     ny = length(ys)
-    σ² = √(((nx+ny)/(nx*ny)) + (es^2 / 2(nx+ny)))
+    σ² = √(((nx + ny) / (nx * ny)) + (es^2 / 2(nx + ny)))
     _, uq = twotailedquantile(quantile)
     z = Distributions.quantile(Normal(), uq)
-    ci = z*√σ²
-    ConfidenceInterval(es-ci, es+ci, quantile)
+    ci = z * √σ²
+
+    return ConfidenceInterval(
+        es - ci,
+        es + ci,
+        quantile,
+    )
 end
+
+lower(ci::ConfidenceInterval) = ci.lower
+upper(ci::ConfidenceInterval) = ci.upper
+quantile(ci::ConfidenceInterval) = ci.quantile
 
 """
     BootstrapConfidenceInterval(lower, upper, quantile, bootstrap)
 
-A type representing the `lower` lower and `upper` upper bounds of an effect size confidence
-interval at the `quantile` quantile with `bootstrap` boostrap resamples.
+A type representing the `lower` and `upper` bounds of an effect size confidence
+interval at a specified `quantile` with `bootstrap` resamples.
 
-    BootstrapConfidenceInterval(xs, ys, f, bootstrap; quantile)
+    BootstrapConfidenceInterval(f, xs, ys, bootstrap; quantile)
 
-Calculates the effect size confidence interval between two vectors `xs` and `ys` at the
-`quantile` quantile by applying `f` to `bootstrap` bootstrap resamples of `xs` and `ys`.
+Calculate a bootstrap confidence interval between two vectors `xs` and `ys` at a specified
+`quantile` by applying `f` to `bootstrap` resamples of `xs` and `ys`.
 """
 struct BootstrapConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
     lower::T
@@ -99,24 +116,35 @@ struct BootstrapConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
     quantile::Float64
     bootstrap::Int64
 
-    function BootstrapConfidenceInterval(l::T,u::T,q::Float64,b::Int64) where T<:Real
-        l ≤ u || throw(DomainError((l,u), "l > u"))
+    function BootstrapConfidenceInterval(l::T, u::T, q::Float64, b::Int64) where T<:Real
+        l ≤ u || throw(ArgumentError("l > u"))
         0. ≤ q ≤ 1. || throw(DomainError(q))
         b > 1 || throw(DomainError(b))
-        new{T}(l,u,q,b)
+        new{T}(l, u, q, b)
     end
 end
 
-function BootstrapConfidenceInterval(xs::AbstractVector{T}, ys::AbstractVector{T},
-                                     f::Function, bootstrap::Integer=1000;
-                                     quantile::AbstractFloat) where T<:Real
+function BootstrapConfidenceInterval(
+    f::Function,
+    xs::AbstractVector{T},
+    ys::AbstractVector{T},
+    bootstrap::Integer = 1000;
+    quantile::AbstractFloat,
+    ) where T<:Real
+
     0. ≤ quantile ≤ 1. || throw(DomainError(quantile))
     bootstrap > 1 || throw(DomainError(bootstrap))
     es = map(_->f(bootstrapsample(xs), bootstrapsample(ys)), 1:bootstrap)
-    # es = @distributed vcat for _ = 1:bootstrap
-    #     f(bootstrapsample(xs), bootstrapsample(ys))
-    # end
     lq, uq = twotailedquantile(quantile)
-    BootstrapConfidenceInterval(Distributions.quantile(es, lq),
-        Distributions.quantile(es, uq), quantile, bootstrap)
+
+    return BootstrapConfidenceInterval(
+        Distributions.quantile(es, lq),
+        Distributions.quantile(es, uq),
+        quantile,
+        bootstrap,
+    )
 end
+
+lower(ci::BootstrapConfidenceInterval) = ci.lower
+upper(ci::BootstrapConfidenceInterval) = ci.upper
+quantile(ci::BootstrapConfidenceInterval) = ci.quantile

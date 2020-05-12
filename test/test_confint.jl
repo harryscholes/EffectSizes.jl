@@ -12,11 +12,8 @@ using EffectSizes: bootstrapsample, twotailedquantile, AbstractConfidenceInterva
     @test lower(ci) == l
     @test upper(ci) == u
     @test quantile(ci) == q
-    io = IOBuffer()
-    show(io, ci)
-    @test String(take!(io)) == "$(q)CI ($l, $u)"
-    @test_throws DomainError ConfidenceInterval(1, -1, .95)
-    @test_throws DomainError ConfidenceInterval(1., 0.999, .95)
+    @test_throws ArgumentError ConfidenceInterval(1, -1, .95)
+    @test_throws ArgumentError ConfidenceInterval(1., 0.999, .95)
 
     @testset "ConfidenceInterval" begin
         l = .1
@@ -27,11 +24,8 @@ using EffectSizes: bootstrapsample, twotailedquantile, AbstractConfidenceInterva
         @test lower(ci) == l
         @test upper(ci) == u
         @test quantile(ci) == q
-        io = IOBuffer()
-        show(io, ci)
-        @test String(take!(io)) == "$(q)CI ($l, $u)"
-        @test_throws DomainError ConfidenceInterval(1, -1, .95)
-        @test_throws DomainError ConfidenceInterval(1., 0.999, .95)
+        @test_throws ArgumentError ConfidenceInterval(1, -1, .95)
+        @test_throws ArgumentError ConfidenceInterval(1., 0.999, .95)
         @test_throws DomainError ConfidenceInterval(l, u, -0.1)
         @test_throws DomainError ConfidenceInterval(l, u, 1.1)
 
@@ -62,11 +56,8 @@ using EffectSizes: bootstrapsample, twotailedquantile, AbstractConfidenceInterva
         @test upper(ci) == u
         @test quantile(ci) == q
         @test ci.bootstrap == b
-        io = IOBuffer()
-        show(io, ci)
-        @test String(take!(io)) == "$(q)CI ($l, $u)"
-        @test_throws DomainError BootstrapConfidenceInterval(1, -1, q, b)
-        @test_throws DomainError BootstrapConfidenceInterval(1., 0.999, q, b)
+        @test_throws ArgumentError BootstrapConfidenceInterval(1, -1, q, b)
+        @test_throws ArgumentError BootstrapConfidenceInterval(1., 0.999, q, b)
         @test_throws DomainError BootstrapConfidenceInterval(l, u, -0.1, b)
         @test_throws DomainError BootstrapConfidenceInterval(l, u, 1.1, b)
         @test_throws DomainError BootstrapConfidenceInterval(l, u, q, -1)
@@ -75,12 +66,12 @@ using EffectSizes: bootstrapsample, twotailedquantile, AbstractConfidenceInterva
         ys = randn(110)
         q = 0.8
         f(xs, ys) = sum([sum(xs), sum(ys)] ./ 1000)
-        ci = BootstrapConfidenceInterval(xs, ys, f, 100, quantile=q)
+        ci = BootstrapConfidenceInterval(f, xs, ys, 100, quantile=q)
         @test ci isa AbstractConfidenceInterval
         @test quantile(ci) == q
         @test lower(ci) < upper(ci)
-        @test_throws DomainError BootstrapConfidenceInterval(xs, ys, f, 100, quantile=1.1)
-        @test_throws DomainError BootstrapConfidenceInterval(xs, ys, f, -1, quantile=q)
+        @test_throws DomainError BootstrapConfidenceInterval(f, xs, ys, 100, quantile=1.1)
+        @test_throws DomainError BootstrapConfidenceInterval(f, xs, ys, -1, quantile=q)
     end
 end
 

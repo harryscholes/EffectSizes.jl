@@ -1,6 +1,6 @@
 using EffectSizes, Statistics
 using Test
-using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2
+using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2, _effectsize
 
 @testset "$T constructor" for (T, v) = [(EffectSize, :d), (CohenD, :d), (HedgeG, :g),
                                         (GlassΔ, :Δ)]
@@ -15,9 +15,6 @@ using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2
     @test quantile(es) == es.ci.quantile
     @test lower(es.ci) == es.ci.lower
     @test upper(es.ci) == es.ci.upper
-    io = IOBuffer()
-    show(io, es)
-    @test String(take!(io)) == "$e, $(q)CI ($l, $u)"
 
     xs = randn(90)
     ys = randn(110)
@@ -61,14 +58,14 @@ end
     @test correction(10^9) ≈ 1
 end
 
-@testset "effectsize" begin
+@testset "_effectsize" begin
     # from http://staff.bath.ac.uk/pssiw/stats2/page2/page14/page14.html
-    @test round(effectsize(20., 24., 4.53), digits=3) == -0.883
+    @test round(_effectsize(20., 24., 4.53), digits=3) == -0.883
 
     xs = 10:110
     ys = 1:100
     mx = mean(xs)
     my = mean(ys)
     s = pooledstd1(xs, ys)
-    @test effectsize(mx, my, s, 100) > effectsize(mx, my, s, 50) > effectsize(mx, my, s, 10)
+    @test _effectsize(mx, my, s, 100) > _effectsize(mx, my, s, 50) > _effectsize(mx, my, s, 10)
 end
