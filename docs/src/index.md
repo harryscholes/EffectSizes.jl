@@ -69,17 +69,17 @@ julia> upper(ci)
 ## API
 
 ```@docs
-AbstractEffectSize,
-EffectSize,
-CohenD,
-HedgeG,
-GlassΔ,
-effectsize,
-confint,
-quantile,
-AbstractConfidenceInterval,
-ConfidenceInterval,
-BootstrapConfidenceInterval,
-lower,
+AbstractEffectSize
+EffectSize
+CohenD
+HedgeG
+GlassΔ
+effectsize
+confint
+quantile
+AbstractConfidenceInterval
+ConfidenceInterval
+BootstrapConfidenceInterval
+lower
 upper
 ```
