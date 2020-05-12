@@ -5,13 +5,12 @@ os:
   - osx
 julia:
   - 1.4
-matrix:
-  fast_finish: true
 notifications:
   email: false
 after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
 jobs:
+  fast_finish: true
   include:
     - stage: "Documentation"
       julia: 1.4
