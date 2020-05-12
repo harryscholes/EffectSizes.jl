@@ -23,14 +23,16 @@ abstract type AbstractEffectSize end
 
 Return the effect size index.
 """
-effectsize
+effectsize(::T) where T<:AbstractEffectSize =
+    throw(ArgumentError("`effectsize` is not implemented for $(string(T))"))
 
 """
     confint(es::AbstractEffectSize) -> ConfidenceInterval
 
 Return the confidence interval of an effect size as a `ConfidenceInterval` object.
 """
-confint
+confint(::T) where T<:AbstractEffectSize =
+    throw(ArgumentError("`confint` is not implemented for $(string(T))")) 
 
 """
     quantile(es::AbstractEffectSize) -> Float64

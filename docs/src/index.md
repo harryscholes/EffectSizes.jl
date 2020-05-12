@@ -75,11 +75,13 @@ CohenD
 HedgeG
 GlassΔ
 effectsize
-confint
-quantile
+confint(::AbstractEffectSize)
+quantile(::AbstractEffectSize)
 AbstractConfidenceInterval
 ConfidenceInterval
 BootstrapConfidenceInterval
+confint(::AbstractConfidenceInterval)
 lower
 upper
+quantile(::AbstractConfidenceInterval)
 ```
