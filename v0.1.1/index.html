@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · EffectSizes.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>EffectSizes.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href>Home</a><ul class="internal"><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#Examples-1">Examples</a></li><li><a class="toctext" href="#Index-1">Index</a></li><li><a class="toctext" href="#API-1">API</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Home</a></li></ul><a class="edit-page" href="https://github.com/harryscholes/EffectSizes.jl/blob/master/docs/src/index.md#L"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Home</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="EffectSizes.jl-1" href="#EffectSizes.jl-1">EffectSizes.jl</a></h1><p>EffectSizes.jl is a Julia package for effect size measures. Confidence intervals are assigned to effect sizes using either the normal distribution or by bootstrap resampling. The package implements types for the following measures:</p><table><tr><th style="text-align: right"><strong>Measure</strong></th><th style="text-align: right"><strong>Type</strong></th></tr><tr><td style="text-align: right">Cohen&#39;s <em>d</em></td><td style="text-align: right"><code>CohenD</code></td></tr><tr><td style="text-align: right">Hedge&#39;s <em>g</em></td><td style="text-align: right"><code>HedgeG</code></td></tr><tr><td style="text-align: right">Glass&#39;s <em>Δ</em></td><td style="text-align: right"><code>GlassΔ</code></td></tr></table><h2><a class="nav-anchor" id="Installation-1" href="#Installation-1">Installation</a></h2><pre><code class="language-julia">] add https://github.com/harryscholes/EffectSizes.jl</code></pre><h2><a class="nav-anchor" id="Examples-1" href="#Examples-1">Examples</a></h2><pre><code class="language-julia">julia&gt; using Random, EffectSizes; Random.seed!(1);
+
+julia&gt; xs = randn(10^3);
+
+julia&gt; ys = randn(10^3) .+ 0.5;
+
+julia&gt; es = CohenD(xs, ys, quantile=0.95); # normal CI (idealised distribution)
+
+julia&gt; typeof(es)
+CohenD{Float64,ConfidenceInterval{Float64}}
+
+julia&gt; effectsize(es)
+-0.507…
+
+julia&gt; quantile(es)
+0.95
+
+julia&gt; ci = confint(es);
+
+julia&gt; typeof(ci)
+ConfidenceInterval{Float64}
+
+julia&gt; confint(ci)
+(-0.924…, -0.0889…)
+
+julia&gt; es = CohenD(xs, ys, 10^4, quantile=0.95); # bootstrap CI (empirical distribution)
+
+julia&gt; effectsize(es) # effect size is the same
+-0.507…
+
+julia&gt; typeof(es)
+CohenD{Float64,BootstrapConfidenceInterval{Float64}}
+
+julia&gt; ci = confint(es); # confidence interval is different
+
+julia&gt; lower(ci)
+-0.597…
+
+julia&gt; upper(ci)
+-0.418…</code></pre><h2><a class="nav-anchor" id="Index-1" href="#Index-1">Index</a></h2><ul></ul><h2><a class="nav-anchor" id="API-1" href="#API-1">API</a></h2><div class="admonition warning"><div class="admonition-title">Missing docstring.</div><div class="admonition-text"><p>Missing docstring for <code>AbstractEffectSize, EffectSize, CohenD, HedgeG, GlassΔ, effectsize, confint, quantile, AbstractConfidenceInterval, ConfidenceInterval, BootstrapConfidenceInterval, lower, upper</code>. Check Documenter&#39;s build log for details.</p></div></div><footer><hr/></footer></article></body></html>
