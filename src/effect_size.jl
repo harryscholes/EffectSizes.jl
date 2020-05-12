@@ -15,64 +15,52 @@ Method | Description
 :--- | :---
 `effectsize` | returns the effect size index
 `confint` | returns the confidence interval
-`quantile` | returns the confidence interval quantile
 """
 abstract type AbstractEffectSize end
 
 """
     effectsize(es::AbstractEffectSize)
 
-Returns the effect size index.
+Return the effect size index.
 """
 effectsize
 
 """
-    confint(es::AbstractEffectSize)
+    confint(es::AbstractEffectSize) -> ConfidenceInterval
 
-Returns the confidence interval of an effect size as a `ConfidenceInterval` object.
-
-    confint(ci::ConfidenceInterval)
-
-Returns the lower and upper bounds of a confidence interval.
+Return the confidence interval of an effect size as a `ConfidenceInterval` object.
 """
 confint
 
 """
-    quantile(es::AbstractEffectSize)
-    quantile(ci::ConfidenceInterval)
+    quantile(es::AbstractEffectSize) -> Float64
 
 Returns the quantile of a confidence interval.
 """
-quantile
-
-HypothesisTests.confint(es::AbstractEffectSize) = es.ci
-Distributions.quantile(es::AbstractEffectSize) = quantile(confint(es))
-
-function Base.show(io::IO, es::AbstractEffectSize)
-    print(io, round(effectsize(es), digits=PRECISION), ", ", confint(es))
-end
+quantile(es::AbstractEffectSize) = quantile(confint(es))
 
 # Used by: CohenD
 function pooledstd1(xs::AbstractVector{T}, ys::AbstractVector{T}) where T<:Real
     nx = length(xs)
     ny = length(ys)
-    √(((nx-1)*std(xs)^2 + (ny-1)*std(ys)^2)/(nx+ny-2))
+    return √(((nx - 1) * std(xs)^2 + (ny - 1) * std(ys)^2) / (nx + ny - 2))
 end
 
 # Used by: HedgeG
 function pooledstd2(xs::AbstractVector{T}, ys::AbstractVector{T}) where T<:Real
     nx = length(xs)
     ny = length(ys)
-    √(((nx-1)*std(xs)^2 + (ny-1)*std(ys)^2)/(nx+ny))
+    return √(((nx - 1) * std(xs)^2 + (ny - 1) * std(ys)^2) / (nx + ny))
 end
 
 function correction(n::Integer)
     n > 1 || throw(DomainError(n))
-    ((n-3)/(n-2.25)) * √((n-2)/n)
+    return ((n - 3) / (n - 2.25)) * √((n - 2) / n)
 end
 
-effectsize(mx::T, my::T, s::T) where T<:Real = ((mx-my) / s)
-effectsize(mx::T, my::T, s::T, n::Integer) where T<:Real = ((mx-my) / s) * correction(n)
+_effectsize(μx::T, μy::T, σ::T) where T<:Real = ((μx - μy) / σ)
+
+_effectsize(μx::T, μy::T, σ::T, n::Integer) where T<:Real = ((μx - μy) / σ) * correction(n)
 
 """
     CohenD(xs, ys[, bootstrap]; [quantile=0.95])
@@ -117,9 +105,24 @@ struct CohenD{T<:Real,CI<:AbstractConfidenceInterval{T}} <: AbstractEffectSize
     ci::CI
 end
 
-cohend(xs, ys) = effectsize(mean(xs), mean(ys), pooledstd1(xs, ys), length(xs)+length(ys))
+function cohend(xs::AbstractVector{T}, ys::AbstractVector{T}) where T<:Real
+    return _effectsize(
+        mean(xs),
+        mean(ys),
+        pooledstd1(xs, ys),
+        length(xs) + length(ys),
+    )
+end
 
 effectsize(es::CohenD) = es.d
+confint(es::CohenD) = es.ci
+
+"""
+    const EffectSize = CohenD
+
+See [`CohenD`](@ref).
+"""
+const EffectSize = CohenD
 
 """
     HedgeG(xs, ys[, bootstrap]; [quantile=0.95])
@@ -152,9 +155,17 @@ struct HedgeG{T<:Real,CI<:AbstractConfidenceInterval{T}} <: AbstractEffectSize
     ci::CI
 end
 
-hedgeg(xs, ys) = effectsize(mean(xs), mean(ys), pooledstd2(xs, ys), length(xs)+length(ys))
+function hedgeg(xs::AbstractVector{T}, ys::AbstractVector{T}) where T<:Real
+    return _effectsize(
+        mean(xs),
+        mean(ys),
+        pooledstd2(xs, ys),
+        length(xs) + length(ys),
+    )
+end
 
 effectsize(es::HedgeG) = es.g
+confint(es::HedgeG) = es.ci
 
 """
     GlassΔ(treatment, control[, bootstrap]; [quantile=0.95])
@@ -184,27 +195,42 @@ struct GlassΔ{T<:Real,CI<:AbstractConfidenceInterval{T}} <: AbstractEffectSize
     ci::CI
 end
 
-glassΔ(xs, ys) = effectsize(mean(xs), mean(ys), std(ys))
+function glassΔ(xs::AbstractVector{T}, ys::AbstractVector{T}) where T<:Real
+    return _effectsize(
+        mean(xs),
+        mean(ys),
+        std(ys),
+    )
+end
 
 effectsize(es::GlassΔ) = es.Δ
+confint(es::GlassΔ) = es.ci
+
 
 # constructors
 
 for (T, f) = [(:CohenD, cohend), (:GlassΔ, glassΔ), (:HedgeG, hedgeg)]
     @eval begin
         # Normal CI
-        function $T(xs::AbstractVector{T}, ys::AbstractVector{T};
-                    quantile::Float64=0.95) where T<:Real
+        function $T(
+            xs::AbstractVector{T},
+            ys::AbstractVector{T};
+            quantile::Float64=0.95,
+        ) where T<:Real
             es = $f(xs, ys)
             ci = ConfidenceInterval(xs, ys, es; quantile=quantile)
             $T(es, ci)
         end
 
         # Bootstrap CI
-        function $T(xs::AbstractVector{T}, ys::AbstractVector{T}, bootstrap::Integer;
-                    quantile::Float64=0.95) where T<:Real
+        function $T(
+            xs::AbstractVector{T},
+            ys::AbstractVector{T},
+            bootstrap::Integer;
+            quantile::Float64=0.95,
+        ) where T<:Real
             es = $f(xs, ys)
-            ci = BootstrapConfidenceInterval(xs, ys, $f, bootstrap; quantile=quantile)
+            ci = BootstrapConfidenceInterval($f, xs, ys, bootstrap; quantile=quantile)
             $T(es, ci)
         end
     end
