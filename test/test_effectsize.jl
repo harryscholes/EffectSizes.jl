@@ -13,8 +13,8 @@ using EffectSizes: AbstractEffectSize, correction, pooledstd1, pooledstd2, _effe
     @test effectsize(es) == getfield(es, v)
     @test confint(es) == es.ci
     @test quantile(es) == es.ci.quantile
-    @test lower(es.ci) == es.ci.lower
-    @test upper(es.ci) == es.ci.upper
+    @test lower(es.ci) == es.ci.ci[1]
+    @test upper(es.ci) == es.ci.ci[2]
 
     xs = randn(90)
     ys = randn(110)

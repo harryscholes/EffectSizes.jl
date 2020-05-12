@@ -16,39 +16,40 @@ Subtypes implement:
 
 Method | Description
 :--- | :---
-`lower` | returns the lower bound
-`upper` | returns the upper bound
+`confint` | returns the lower and upper bounds
 `quantile` | returns the quantile
 """
 abstract type AbstractConfidenceInterval{T<:Real} end
-
-"""
-    lower(ci::AbstractConfidenceInterval{T}) -> T
-
-Return the lower bound of a confidence interval.
-"""
-lower
-
-"""
-    upper(ci::AbstractConfidenceInterval{T}) -> T
-
-Return the upper bound of a confidence interval.
-"""
-upper
 
 """
     quantile(ci::AbstractConfidenceInterval) -> Float64
 
 Returns the quantile of a confidence interval.
 """
-quantile
+quantile(::T) where T<:AbstractConfidenceInterval =
+    throw(ArgumentError("`quantile` is not implemented for $(string(T))"))
 
 """
     confint(ci::AbstractConfidenceInterval{T}) -> Tuple{T,T}
 
 Return the lower and upper bounds of a confidence interval.
 """
-confint(ci::AbstractConfidenceInterval) = (lower(ci), upper(ci))
+confint(::T) where T<:AbstractConfidenceInterval =
+    throw(ArgumentError("`confint` is not implemented for $(string(T))"))
+
+"""
+    lower(ci::AbstractConfidenceInterval{T}) -> T
+
+Return the lower bound of a confidence interval.
+"""
+lower(ci::AbstractConfidenceInterval) = confint(ci)[1]
+
+"""
+    upper(ci::AbstractConfidenceInterval{T}) -> T
+
+Return the upper bound of a confidence interval.
+"""
+upper(ci::AbstractConfidenceInterval) = confint(ci)[2]
 
 """
     ConfidenceInterval(lower, upper, quantile)
@@ -62,14 +63,13 @@ Calculate a confidence interval for the effect size `es` between two vectors `xs
 at a specified `quantile`.
 """
 struct ConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
-    lower::T
-    upper::T
+    ci::Tuple{T,T}
     quantile::Float64
 
     function ConfidenceInterval(l::T, u::T, q::Float64) where T<:Real
         l ≤ u || throw(ArgumentError("l > u"))
         0. ≤ q ≤ 1. || throw(DomainError(q))
-        new{T}(l, u, q)
+        new{T}((l, u), q)
     end
 end
 
@@ -95,8 +95,7 @@ function ConfidenceInterval(
     )
 end
 
-lower(ci::ConfidenceInterval) = ci.lower
-upper(ci::ConfidenceInterval) = ci.upper
+confint(ci::ConfidenceInterval) = ci.ci
 quantile(ci::ConfidenceInterval) = ci.quantile
 
 """
@@ -111,8 +110,7 @@ Calculate a bootstrap confidence interval between two vectors `xs` and `ys` at a
 `quantile` by applying `f` to `bootstrap` resamples of `xs` and `ys`.
 """
 struct BootstrapConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
-    lower::T
-    upper::T
+    ci::Tuple{T,T}
     quantile::Float64
     bootstrap::Int64
 
@@ -120,7 +118,7 @@ struct BootstrapConfidenceInterval{T<:Real} <: AbstractConfidenceInterval{T}
         l ≤ u || throw(ArgumentError("l > u"))
         0. ≤ q ≤ 1. || throw(DomainError(q))
         b > 1 || throw(DomainError(b))
-        new{T}(l, u, q, b)
+        new{T}((l, u), q, b)
     end
 end
 
@@ -145,6 +143,5 @@ function BootstrapConfidenceInterval(
     )
 end
 
-lower(ci::BootstrapConfidenceInterval) = ci.lower
-upper(ci::BootstrapConfidenceInterval) = ci.upper
+confint(ci::BootstrapConfidenceInterval) = ci.ci
 quantile(ci::BootstrapConfidenceInterval) = ci.quantile
