@@ -13,9 +13,10 @@ after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
 jobs:
   include:
-    - stage: Documentation
+    - stage: "Documentation"
       julia: 1.4
-      script: julia --project=docs -e '
+      os: linux
+      script: julia --project=docs/ -e '
           using Pkg;
           Pkg.develop(PackageSpec(path=pwd()));
           Pkg.instantiate();
