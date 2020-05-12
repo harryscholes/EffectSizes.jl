@@ -25,35 +25,40 @@ julia> xs = randn(10^3);
 
 julia> ys = randn(10^3) .+ 0.5;
 
-julia> es = CohenD(xs, ys) # normal CI
--0.507, 0.95CI (-0.924, -0.089)
+julia> es = CohenD(xs, ys, quantile=0.95); # normal CI (idealised distribution)
+
+julia> typeof(es)
+CohenD{Float64,ConfidenceInterval{Float64}}
 
 julia> effectsize(es)
--0.506674937960848
+-0.507…
 
 julia> quantile(es)
 0.95
 
-julia> CohenD(xs, ys, quantile=0.99)
--0.507, 0.99CI (-1.056, 0.042)
+julia> ci = confint(es);
 
-julia> CohenD(xs, ys, 10^4) # bootstrap CI
--0.507, 0.95CI (-0.594, -0.417)
-
-julia> ci = confint(es)
-0.95CI (-0.924, -0.089)
+julia> typeof(ci)
+ConfidenceInterval{Float64}
 
 julia> confint(ci)
-(-0.9244427501651218, -0.08890712575657417)
+(-0.924…, -0.0889…)
+
+julia> es = CohenD(xs, ys, 10^4, quantile=0.95); # bootstrap CI (empirical distribution)
+
+julia> effectsize(es) # effect size is the same
+-0.507…
+
+julia> typeof(es)
+CohenD{Float64,BootstrapConfidenceInterval{Float64}}
+
+julia> ci = confint(es); # confidence interval is different
 
 julia> lower(ci)
--0.9244427501651218
+-0.597…
 
 julia> upper(ci)
--0.08890712575657417
-
-julia> quantile(ci)
-0.95
+-0.418…
 ```
 
 ## Index
@@ -64,16 +69,17 @@ julia> quantile(ci)
 ## API
 
 ```@docs
-EffectSizes.AbstractEffectSize
-CohenD
-EffectSize
-HedgeG
-GlassΔ
-EffectSizes.ConfidenceInterval
-EffectSizes.BootstrapConfidenceInterval
-effectsize
-confint
-lower
+AbstractEffectSize,
+EffectSize,
+CohenD,
+HedgeG,
+GlassΔ,
+effectsize,
+confint,
+quantile,
+AbstractConfidenceInterval,
+ConfidenceInterval,
+BootstrapConfidenceInterval,
+lower,
 upper
-quantile
 ```

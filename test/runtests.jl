@@ -2,6 +2,6 @@ using EffectSizes
 using Test
 
 @testset "EffectSizes.jl" begin
-    include("confint.jl")
-    include("effectsize.jl")
+    include("test_confint.jl")
+    include("test_effectsize.jl")
 end

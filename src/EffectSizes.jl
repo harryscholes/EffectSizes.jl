@@ -6,31 +6,29 @@ A Julia package for effect size measures.
 module EffectSizes
 
 export
+    AbstractEffectSize,
     EffectSize,
     CohenD,
     HedgeG,
     GlassΔ,
     effectsize,
     confint,
+    quantile,
+    AbstractConfidenceInterval,
+    ConfidenceInterval,
+    BootstrapConfidenceInterval,
     lower,
-    upper,
-    quantile
+    upper
 
-import Statistics: mean, std
-import Distributions
-import Distributions: quantile, Normal
-import HypothesisTests
+
+using Statistics
+using Distributions
+using HypothesisTests
+
+import Distributions: quantile
 import HypothesisTests: confint
-import Base.Grisu: PRECISION
 
-include("confint.jl")
-include("effectsize.jl")
-
-"""
-    const EffectSize = CohenD
-
-See [`CohenD`](@ref).
-"""
-const EffectSize = CohenD
+include("confidence_interval.jl")
+include("effect_size.jl")
 
 end # module
