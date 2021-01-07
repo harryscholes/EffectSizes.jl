@@ -19,7 +19,7 @@ Glass's *Δ* | `GlassΔ`
 ## Installation
 
 ```julia
-] add https://github.com/harryscholes/EffectSizes.jl
+] add EffectSizes
 ```
 
 ## Examples
